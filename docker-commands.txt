@@ -274,3 +274,120 @@ COPY testfile /tmp
 ADD test.tar.gz /tmp
 
 
+
+
+
+
+
+
+
+
+*******************************************************************************************************
+
+created volume and attached with different container.
+
+
+
+kiran@2001:~/Desktop/dev/docker$ docker images
+
+REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
+newimage      latest    0939e89487a7   3 hours ago     77.9MB
+kptest        latest    8f34d7744721   3 hours ago     77.9MB
+ubuntu        latest    ca2b0f26964c   3 weeks ago     77.9MB
+hello-world   latest    d2c94e258dcb   10 months ago   13.3kB
+
+
+kiran@2001:~/Desktop/dev/docker$ docker build -t myimage .
+
+[+] Building 0.1s (6/6) FINISHED                                                          docker:default
+ => [internal] load build definition from Dockerfile                                                0.0s
+ => => transferring dockerfile: 84B                                                                 0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:latest                                    0.0s
+ => [internal] load .dockerignore                                                                   0.0s
+ => => transferring context: 2B                                                                     0.0s
+ => [1/2] FROM docker.io/library/ubuntu:latest                                                      0.0s
+ => CACHED [2/2] WORKDIR /tmp                                                                       0.0s
+ => exporting to image                                                                              0.0s
+ => => exporting layers                                                                             0.0s
+ => => writing image sha256:6c064a7343588bbd4ae02adda2190724d9184cd8b1bc3bfd19e6aad273bcbcae        0.0s
+ => => naming to docker.io/library/myimage                                                          0.0s
+ 
+ 
+kiran@2001:~/Desktop/dev/docker$ docker run -it -name container1 myimage /bin/bash
+unknown shorthand flag: 'n' in -name
+See 'docker run --help'.
+
+
+kiran@2001:~/Desktop/dev/docker$ docker run -it --name container1 myimage /bin/bash
+root@65dcab30bbe2:/tmp# ls
+root@65dcab30bbe2:/tmp# cd..
+bash: cd..: command not found
+root@65dcab30bbe2:/tmp# cd ..
+root@65dcab30bbe2:/# ls
+bin   dev  home  lib32  libx32  mnt        opt   root  sbin  sys  usr
+boot  etc  lib   lib64  media   myvolume1  proc  run   srv   tmp  var
+root@65dcab30bbe2:/# docker images
+bash: docker: command not found
+root@65dcab30bbe2:/# cd myvolume
+bash: cd: myvolume: No such file or directory
+root@65dcab30bbe2:/# cd myvolume1/
+root@65dcab30bbe2:/myvolume1# touch a b c
+root@65dcab30bbe2:/myvolume1# ls
+a  b  c
+root@65dcab30bbe2:/myvolume1# exit
+exit
+
+
+kiran@2001:~/Desktop/dev/docker$ docker run -it --name container2 --privilaged=true --volumes-from container1 ubuntu /bin/bash
+unknown flag: --privilaged
+See 'docker run --help'.
+
+
+kiran@2001:~/Desktop/dev/docker$ docker run -it --name container2 --privileged=true --volumes-from container1 ubuntu /bin/bash
+root@c6c96a41f663:/# ls
+bin   dev  home  lib32  libx32  mnt        opt   root  sbin  sys  usr
+boot  etc  lib   lib64  media   myvolume1  proc  run   srv   tmp  var
+root@c6c96a41f663:/# cd m
+media/     mnt/       myvolume1/ 
+root@c6c96a41f663:/# cd myvolume1/
+root@c6c96a41f663:/myvolume1# ls
+a  b  c
+root@c6c96a41f663:/myvolume1# touch z
+root@c6c96a41f663:/myvolume1# ls
+a  b  c  z
+root@c6c96a41f663:/myvolume1# exit
+exit
+
+
+kiran@2001:~/Desktop/dev/docker$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+
+kiran@2001:~/Desktop/dev/docker$ docker start container1
+container1
+
+
+kiran@2001:~/Desktop/dev/docker$ docker attach contaier1
+Error response from daemon: No such container: contaier1
+
+
+kiran@2001:~/Desktop/dev/docker$ docker attach container1
+
+
+root@65dcab30bbe2:/tmp# ls
+root@65dcab30bbe2:/tmp# cd ..
+root@65dcab30bbe2:/# ls
+bin   dev  home  lib32  libx32  mnt        opt   root  sbin  sys  usr
+boot  etc  lib   lib64  media   myvolume1  proc  run   srv   tmp  var
+root@65dcab30bbe2:/# cd myvolume1/
+root@65dcab30bbe2:/myvolume1# ls
+a  b  c  z
+root@65dcab30bbe2:/myvolume1# exit
+exit
+
+
+kiran@2001:~/Desktop/dev/docker$ cat Dockerfile 
+FROM ubuntu
+WORKDIR /tmp
+VOLUME ["/myvolume1"]
+*******************************************************************************************************
