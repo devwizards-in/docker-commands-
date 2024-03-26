@@ -1,0 +1,276 @@
+docker engin download form here :- https://docs.docker.com/engine/install/ubuntu/
+
+see all images(local machine) :- docker images
+
+find images in docker hub :- docker search
+
+download image form docker hub to local machine :- docker pull image_name
+
+give name to container :- docker run -it --name kiran ubuntu (image-name) /bin/bash
+
+-i = interactive model (yat change karu shakato locally geun)
+-t = terminal
+
+--name = name set karu shakato container 
+
+to check service start or not :- service docker status
+
+to start container :- docker start kiran (container-name)
+
+go inside docker :- docker attach kiran (container-name)           (first start container befour work)
+
+to see all containers :- docker ps -a
+
+ps = process status
+-a = all
+
+to see running containers :- docker ps
+
+to stop container :-  docker stop kiran
+
+to delete containerr :- docker rm kiran 
+
+rm = remove
+stop = stop 
+
+
+
+for check status of docker active or not  :- sudo systemctl is-active docker
+
+
+
+sudo docker run hello-world
+which docker
+docker images
+docker info
+service docker stop
+service docker start
+docker pull jenkins :- (download image on local machine )
+docker search ubuntu :- (ubuntu chay sagaday images yita dakaval)
+ 
+
+cat /etc/os-release :- (container chay aat kay ahe te bagayala)
+exit :- (container chay baher yayala)
+
+
+
+
+--------------------------------------------------------------------------------------------------------
+
+create one container :- docker run -it --name kiran ubuntu /bin/bash
+
+cd tmp/
+touch myfile             - create file in tmp
+
+difference between base image and change on it :- docker diff kiran updateimage
+			     docker diff container-name
+
+o/p ->  C /root
+        A /root/.bash_history
+        C /tmp
+        A /tmp/myfile
+        
+        D -> deletion
+        C -> Change
+        A -> Append or Addition
+        
+ 
+ Create image of container :- docker commit newcontainer (container-name) updateimage (image-name)     
+ 
+ docker images
+ 
+ create container from this image 
+ -> docker run -it --name rajcontainer (container-name) updateimage (image-name) /bin/bash  
+ 
+ root@cid #  ls
+          #  cd tmp/
+       tmp#  ls
+       
+       o/p -> myfile {you will get all files back}
+       
+       
+       
+--------------------------------------------------------------------------------------------------------
+
+Dockerfile
+
+
+dockerfile is basically a text file if contains some set of instruction
+Automation of docker image creation
+
+Docker components 
+
+FROM :- for base image this command must be on top of the dockerfile.
+RUN  :- to execute commands, it will create a layer in image.(for Run)
+MAINTAINER :- Auther/owner/description      (who written this file name of that person)
+COPY :- copy file from local system (docker vm) we need to provide source destination 
+        (we can not download file from internet and any remote repo)
+ADD :- similar to COPY but, it provides a feature to download file from internet, also we extract file
+       at docker image side.
+EXPOSE :- to expose ports such as port 8080 for tomcat, port 80 from nginx etc.
+WORKDIR :- to set working directory for a container.
+CMD :- execute commands but during container cration.
+ENTRYPOINT :- similar to CMD, but has higer priority over CMD, first commands will be executed 
+              by ENTRYPOINT only (higer priority).
+ENV :- Environment variables.
+ARG :- 
+
+-------------------------------------------------------------------------------------------------------
+
+1. create a file named Dockerfile
+2. Add instruction in Dockerfile
+3. Build dockerfile to Create image
+4. Run image to create container
+
+vi Dockerfile :-
+	FROM ubuntu
+	Run echo "Technology" > /tmp/testfile
+
+to create image out of dockerfile
+docker build -t myimg(image-name) .(current-directory-name = .)
+docker ps -a
+docker images
+
+now create container from the above image :-
+
+docker run -it --name mycontainer myimg /bin/bash
+
+cat /tmp/testfile
+
+
+
+
+
+******
+kiran@2001:~/Desktop/dev/docker$ vim Dockerfile
+kiran@2001:~/Desktop/dev/docker$ docker build -t kptest .
+[+] Building 0.4s (6/6) FINISHED                                                          docker:default
+ => [internal] load build definition from Dockerfile                                                0.0s
+ => => transferring dockerfile: 85B                                                                 0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:latest                                    0.0s
+ => [internal] load .dockerignore                                                                   0.0s
+ => => transferring context: 2B                                                                     0.0s
+ => [1/2] FROM docker.io/library/ubuntu:latest                                                      0.0s
+ => [2/2] RUN echo "Hi kiran" > /tmp/testfile                                                       0.3s
+ => exporting to image                                                                              0.0s
+ => => exporting layers                                                                             0.0s
+ => => writing image sha256:8f34d7744721d21c1228b20ca101619beeac1d131cf38ce7a8ee0276c6c29e53        0.0s
+ => => naming to docker.io/library/kptest                                                           0.0s
+kiran@2001:~/Desktop/dev/docker$ ls
+docker-commands.txt  Dockerfile
+kiran@2001:~/Desktop/dev/docker$ docker images
+REPOSITORY    TAG       IMAGE ID       CREATED              SIZE
+kptest        latest    8f34d7744721   About a minute ago   77.9MB
+ubuntu        latest    ca2b0f26964c   3 weeks ago          77.9MB
+hello-world   latest    d2c94e258dcb   10 months ago        13.3kB
+kiran@2001:~/Desktop/dev/docker$ docker run -it --name tkp kptest /bin/bash
+root@374ca2cd5d3b:/# ls
+bin   dev  home  lib32  libx32  mnt  proc  run   srv  tmp  var
+boot  etc  lib   lib64  media   opt  root  sbin  sys  usr
+root@374ca2cd5d3b:/# cd tmp
+root@374ca2cd5d3b:/tmp# ls
+testfile
+root@374ca2cd5d3b:/tmp# cat testfile
+Hi kiran
+root@374ca2cd5d3b:/tmp# exit
+exit
+kiran@2001:~/Desktop/dev/docker
+
+******
+
+
+
+
+
+
+kiran@2001:~/Desktop/dev/docker$ vim Dockerfile 
+kiran@2001:~/Desktop/dev/docker$ touch testfile1
+kiran@2001:~/Desktop/dev/docker$ ls
+docker-commands.txt  Dockerfile  testfile1
+kiran@2001:~/Desktop/dev/docker$ touch test
+kiran@2001:~/Desktop/dev/docker$ ls
+docker-commands.txt  Dockerfile  test  testfile1
+kiran@2001:~/Desktop/dev/docker$ tar -cvf test.tar test
+test
+kiran@2001:~/Desktop/dev/docker$ ls
+docker-commands.txt  Dockerfile  test  testfile1  test.tar
+kiran@2001:~/Desktop/dev/docker$ gzip test
+test       testfile1  test.tar   
+kiran@2001:~/Desktop/dev/docker$ gzip test.tar 
+kiran@2001:~/Desktop/dev/docker$ ls
+docker-commands.txt  Dockerfile  test  testfile1  test.tar.gz
+kiran@2001:~/Desktop/dev/docker$ rm -rf test
+kiran@2001:~/Desktop/dev/docker$ docker build -t newimage .
+[+] Building 0.1s (8/9)                                                                   docker:default
+ => [internal] load build definition from Dockerfile                                                0.0s
+ => => transferring dockerfile: 162B                                                                0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:latest                                    0.0s
+ => [internal] load .dockerignore                                                                   0.0s
+ => => transferring context: 2B                                                                     0.0s
+ => CACHED [1/5] FROM docker.io/library/ubuntu:latest                                               0.0s
+ => [internal] load build context                                                                   0.0s
+ => => transferring context: 157B                                                                   0.0s
+ => [2/5] WORKDIR /tmp                                                                              0.0s
+ => CACHED [3/5] RUN echo "Hi kiran padole" > /tmp/testfile                                         0.0s
+ => ERROR [4/5] COPY testfile /tmp                                                                  0.0s
+------
+ > [4/5] COPY testfile /tmp:
+------
+Dockerfile:5
+--------------------
+   3 |     RUN echo "Hi kiran padole" > /tmp/testfile
+   4 |     ENV myname kiran
+   5 | >>> COPY testfile /tmp
+   6 |     ADD test.tar.gz /tmp
+   7 |     
+--------------------
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref 7c7335b4-c5e3-4975-9885-d9ba4c2f4020::ujwe5owl53si3gkccfqrvc3v3: "/testfile": not found
+kiran@2001:~/Desktop/dev/docker$ ls
+docker-commands.txt  Dockerfile  testfile1  test.tar.gz
+kiran@2001:~/Desktop/dev/docker$ touch testfile
+kiran@2001:~/Desktop/dev/docker$ docker build -t newimage .
+[+] Building 0.5s (10/10) FINISHED                                                        docker:default
+ => [internal] load build definition from Dockerfile                                                0.0s
+ => => transferring dockerfile: 162B                                                                0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:latest                                    0.0s
+ => [internal] load .dockerignore                                                                   0.0s
+ => => transferring context: 2B                                                                     0.0s
+ => [1/5] FROM docker.io/library/ubuntu:latest                                                      0.0s
+ => [internal] load build context                                                                   0.0s
+ => => transferring context: 61B                                                                    0.0s
+ => CACHED [2/5] WORKDIR /tmp                                                                       0.0s
+ => [3/5] RUN echo "Hi kiran padole" > /tmp/testfile                                                0.3s
+ => [4/5] COPY testfile /tmp                                                                        0.1s
+ => [5/5] ADD test.tar.gz /tmp                                                                      0.0s
+ => exporting to image                                                                              0.1s
+ => => exporting layers                                                                             0.0s
+ => => writing image sha256:0939e89487a79510071b07056d0eb6b2274dbbf515b870405891f052b9d93607        0.0s
+ => => naming to docker.io/library/newimage                                                         0.0s
+kiran@2001:~/Desktop/dev/docker$ docker images
+REPOSITORY    TAG       IMAGE ID       CREATED          SIZE
+newimage      latest    0939e89487a7   13 seconds ago   77.9MB
+kptest        latest    8f34d7744721   16 minutes ago   77.9MB
+ubuntu        latest    ca2b0f26964c   3 weeks ago      77.9MB
+hello-world   latest    d2c94e258dcb   10 months ago    13.3kB
+kiran@2001:~/Desktop/dev/docker$ docker run -it --name kp1 newimage
+root@ab6a34c89f1b:/tmp# ls
+test  testfile
+root@ab6a34c89f1b:/tmp# cd ..
+root@ab6a34c89f1b:/# ls
+bin   dev  home  lib32  libx32  mnt  proc  run   srv  tmp  var
+boot  etc  lib   lib64  media   opt  root  sbin  sys  usr
+root@ab6a34c89f1b:/# cd tmp/
+root@ab6a34c89f1b:/tmp# cat testfile 
+root@ab6a34c89f1b:/tmp# echo $myname
+kiran
+root@ab6a34c89f1b:/tmp# exit
+exit
+kiran@2001:~/Desktop/dev/docker$ cat Dockerfile 
+FROM ubuntu
+WORKDIR /tmp
+RUN echo "Hi kiran padole" > /tmp/testfile
+ENV myname kiran
+COPY testfile /tmp
+ADD test.tar.gz /tmp
+
+
